@@ -293,3 +293,5 @@ if __name__ == "__main__":
             asyncio.run(bot.session.close())
         except:
             pass
+
+# -- тест 
