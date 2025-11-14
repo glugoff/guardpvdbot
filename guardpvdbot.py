@@ -124,7 +124,9 @@ async def add_message_db(user_id: int, text: str):
 
 
 async def get_pending_older_than(days: int):
-    cutoff = int((datetime.utcnow() - timedelta(days=days)).timestamp())
+    utcnow = datetime.now(datetime.UTC)
+    cutoff = int((utcnow - timedelta(days=days)).timestamp())
+
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute(
             "SELECT user_id, chat_id FROM users_requests WHERE status = 'pending' AND request_time <= ?",
