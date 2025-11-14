@@ -4,14 +4,13 @@
 import asyncio
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import aiosqlite
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ChatJoinRequest
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
 
 ### ========== ПЕРЕМЕННЫЕ ========== ###
 BOT_TOKEN_ENVVAR = "BOT_TOKEN"   # имя переменной окружения
@@ -21,7 +20,7 @@ APPROVED_MESSAGE = "Ваша заявка одобрена — добро пож
 DECLINED_MESSAGE = "Ваша заявка отклонена."
 EXPIRED_MESSAGE = "Ваша заявка отклонена (нет ответа в установленный срок)."
 
-EXPIRATION_DAYS = 7  # X дней
+EXPIRATION_DAYS = 7  # X дней до авто-отклонения
 
 ADMIN_ID = 865129371  # твой Telegram ID
 GROUP_ID = 5014041559  # ID тестовой группы
@@ -29,7 +28,6 @@ GROUP_ID = 5014041559  # ID тестовой группы
 DB_PATH = "guardpvdbot.sqlite"
 LOG_LEVEL = logging.INFO
 ### ================================= ###
-
 
 # Логирование
 logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -73,7 +71,7 @@ async def init_db():
 
 
 async def add_request(user_id: int, chat_id: int, username: Optional[str]):
-    ts = int(datetime.utcnow().timestamp())
+    ts = int(datetime.now(timezone.utc).timestamp())
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             """
@@ -109,12 +107,11 @@ async def get_request(user_id: int):
             "SELECT user_id, chat_id, username, request_time, status, notified FROM users_requests WHERE user_id = ?",
             (user_id,),
         )
-        row = await cur.fetchone()
-        return row
+        return await cur.fetchone()
 
 
 async def add_message_db(user_id: int, text: str):
-    ts = int(datetime.utcnow().timestamp())
+    ts = int(datetime.now(timezone.utc).timestamp())
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "INSERT INTO messages (user_id, text, time) VALUES (?, ?, ?)",
@@ -124,9 +121,7 @@ async def add_message_db(user_id: int, text: str):
 
 
 async def get_pending_older_than(days: int):
-    utcnow = datetime.now(datetime.UTC)
-    cutoff = int((utcnow - timedelta(days=days)).timestamp())
-
+    cutoff = int((datetime.now(timezone.utc) - timedelta(days=days)).timestamp())
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute(
             "SELECT user_id, chat_id FROM users_requests WHERE status = 'pending' AND request_time <= ?",
@@ -183,7 +178,6 @@ async def handle_private_message(message: types.Message):
         logger.info(f"Message from {uid} ignored — status {status}.")
         return
 
-    # сохраняем
     text = message.text or "<non-text message>"
     await add_message_db(uid, text)
 
