@@ -15,15 +15,15 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 ### ========== ПЕРЕМЕННЫЕ ========== ###
 BOT_TOKEN_ENVVAR = "BOT_TOKEN"   # имя переменной окружения
 
-CHECK_MESSAGE = "Текст привратного бота для проверки на человечность"
+CHECK_MESSAGE = "Добрый день! Вы подавали заявку на вступление в группу Походы выходных дней Казань. Просьба, в ответ напишите пару слов о себе, чтобы понять что вы не бот. Я перешлю ваше сообщение админу, и он вас добавит."
 APPROVED_MESSAGE = "Ваша заявка одобрена — добро пожаловать!"
 DECLINED_MESSAGE = "Ваша заявка отклонена."
 EXPIRED_MESSAGE = "Ваша заявка отклонена (нет ответа в установленный срок)."
 
-EXPIRATION_DAYS = 7  # X дней до авто-отклонения
+EXPIRATION_DAYS = 3  # X дней до авто-отклонения
 
 ADMIN_ID = 865129371  # твой Telegram ID
-GROUP_ID = 5014041559  # ID тестовой группы
+GROUP_ID = 1519587858  # ID тестовой группы
 
 DB_PATH = "guardpvdbot.sqlite"
 LOG_LEVEL = logging.INFO
