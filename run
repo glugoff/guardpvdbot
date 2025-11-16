@@ -1,7 +1,0 @@
-cd ~/guardpvdbot
-source venv/bin/activate
-pip install -r requirements.txt
-
-
-export BOT_TOKEN="тут_твой_токен_бота"
-python guardpvdbot.py
